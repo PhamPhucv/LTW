@@ -1,8 +1,5 @@
 <?php
-/**
- * logout.php
- * Tiện ích đăng xuất nhanh và dọn sạch session
- */
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

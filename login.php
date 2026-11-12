@@ -1,8 +1,4 @@
 <?php
-/**
- * login.php
- * Màn hình Đăng nhập hệ thống (Màn hình 1)
- */
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -10,7 +6,6 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/auth.php';
 
-// Nếu đã đăng nhập thì tự động chuyển hướng đến Dashboard
 if (is_logged_in()) {
     header('Location: ' . BASE_URL . 'index.php');
     exit;
@@ -25,11 +20,10 @@ if (is_logged_in()) {
     <title>Đăng Nhập - CRM Pro</title>
     <script>const BASE_URL = "<?= BASE_URL ?>";</script>
 
-    <!-- Bootstrap 5.3 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <!-- Bootstrap Icons -->
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Google Fonts -->
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 
@@ -70,7 +64,6 @@ if (is_logged_in()) {
         <p class="text-muted small">Hệ thống quản lý khách hàng doanh nghiệp</p>
     </div>
 
-    <!-- Alert thông báo lỗi -->
     <div id="loginAlert" class="alert alert-danger d-none py-2 small" role="alert">
         <i class="bi bi-exclamation-triangle-fill me-1"></i> <span id="alertMsg"></span>
     </div>
@@ -101,7 +94,6 @@ if (is_logged_in()) {
         </button>
     </form>
 
-    <!-- Hộp gợi ý tài khoản mẫu cho Giảng viên / Người chấm thi -->
     <div class="account-hint-box mt-4">
         <div class="fw-semibold text-primary mb-1"><i class="bi bi-info-circle me-1"></i> Tài khoản mẫu kiểm thử:</div>
         <div class="d-flex justify-content-between text-muted mt-1">
@@ -115,7 +107,6 @@ if (is_logged_in()) {
     </div>
 </div>
 
-<!-- jQuery & Bootstrap Bundle -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

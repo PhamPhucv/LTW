@@ -1,8 +1,4 @@
 <?php
-/**
- * api/customers.php
- * API CRUD khách hàng: Danh sách, Tìm kiếm, Lọc, Phân trang, Thêm, Sửa, Xóa mềm, Khôi phục
- */
 
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../config/database.php';
@@ -14,18 +10,14 @@ $pdo = getDBConnection();
 $currentUserId = $_SESSION['user_id'];
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Lấy action từ GET hoặc POST
 $action = $_GET['action'] ?? ($_POST['action'] ?? 'list');
 
-// Kiểm tra CSRF cho các thao tác thay đổi dữ liệu
 if (in_array($action, ['create', 'update', 'delete', 'restore'])) {
     validate_csrf_api();
 }
 
 switch ($action) {
-    // ----------------------------------------------------
-    // 1. LẤY DANH SÁCH (TÌM KIẾM, LỌC, PHÂN TRANG, THÙNG RÁC)
-    // ----------------------------------------------------
+
     case 'list':
         $page      = max(1, (int)($_GET['page'] ?? 1));
         $limit     = max(5, min(100, (int)($_GET['limit'] ?? 10)));
@@ -35,18 +27,15 @@ switch ($action) {
         $gender    = clean_input($_GET['gender'] ?? '');
         $isTrash   = (int)($_GET['trash'] ?? 0) === 1;
 
-        // Xây dựng câu lệnh WHERE
         $where = [];
         $params = [];
 
-        // Lọc theo trạng thái xóa mềm
         if ($isTrash) {
             $where[] = "c.deleted_at IS NOT NULL";
         } else {
             $where[] = "c.deleted_at IS NULL";
         }
 
-        // Tìm kiếm theo tên, email, số điện thoại
         if (!empty($search)) {
             $where[] = "(c.full_name LIKE ? OR c.email LIKE ? OR c.phone LIKE ?)";
             $searchTerm = "%{$search}%";
@@ -55,13 +44,11 @@ switch ($action) {
             $params[] = $searchTerm;
         }
 
-        // Lọc theo nhóm
         if (!empty($groupId)) {
             $where[] = "c.group_id = ?";
             $params[] = $groupId;
         }
 
-        // Lọc theo giới tính
         if (!empty($gender) && in_array($gender, ['Nam', 'Nữ', 'Khác'])) {
             $where[] = "c.gender = ?";
             $params[] = $gender;
@@ -69,19 +56,16 @@ switch ($action) {
 
         $whereClause = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
 
-        // Đếm tổng số bản ghi
         $countSql = "SELECT COUNT(*) FROM customers c $whereClause";
         $countStmt = $pdo->prepare($countSql);
         $countStmt->execute($params);
         $totalItems = (int)$countStmt->fetchColumn();
         $totalPages = ceil($totalItems / $limit);
 
-        // Sắp xếp
         $allowedSortCols = ['id', 'full_name', 'email', 'phone', 'created_at', 'birthday'];
         $sortBy = in_array($_GET['sort_by'] ?? '', $allowedSortCols) ? $_GET['sort_by'] : 'c.id';
         $sortDir = strtolower($_GET['sort_dir'] ?? 'desc') === 'asc' ? 'ASC' : 'DESC';
 
-        // Lấy danh sách kèm thông tin nhóm
         $sql = "
             SELECT
                 c.id, c.group_id, c.full_name, c.email, c.phone, c.address,
@@ -111,9 +95,6 @@ switch ($action) {
         ]);
         break;
 
-    // ----------------------------------------------------
-    // 2. LẤY CHI TIẾT 1 KHÁCH HÀNG
-    // ----------------------------------------------------
     case 'get':
         $id = (int)($_GET['id'] ?? 0);
         if ($id <= 0) {
@@ -141,9 +122,6 @@ switch ($action) {
         json_response(true, 'Thành công', $customer);
         break;
 
-    // ----------------------------------------------------
-    // 3. THÊM MỚI KHÁCH HÀNG
-    // ----------------------------------------------------
     case 'create':
         $fullName = clean_input($_POST['full_name'] ?? '');
         $email    = clean_input($_POST['email'] ?? '');
@@ -154,7 +132,6 @@ switch ($action) {
         $address  = clean_input($_POST['address'] ?? '');
         $note     = clean_input($_POST['note'] ?? '');
 
-        // Validation phía Server
         if (empty($fullName)) {
             json_response(false, 'Họ và tên khách hàng không được để trống!', [], 422);
         }
@@ -168,14 +145,12 @@ switch ($action) {
             $gender = 'Khác';
         }
 
-        // Kiểm tra trùng email
         $checkStmt = $pdo->prepare("SELECT id FROM customers WHERE email = ? LIMIT 1");
         $checkStmt->execute([$email]);
         if ($checkStmt->fetch()) {
             json_response(false, 'Email này đã tồn tại trong hệ thống! Vui lòng sử dụng email khác.', [], 409);
         }
 
-        // Xử lý upload ảnh đại diện (nếu có)
         $avatarPath = null;
         try {
             if (isset($_FILES['avatar'])) {
@@ -185,7 +160,6 @@ switch ($action) {
             json_response(false, $e->getMessage(), [], 400);
         }
 
-        // Insert vào CSDL
         $insertSql = "
             INSERT INTO customers (group_id, full_name, email, phone, address, gender, birthday, avatar, note, created_by, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
@@ -204,9 +178,6 @@ switch ($action) {
         }
         break;
 
-    // ----------------------------------------------------
-    // 4. CẬP NHẬT THÔNG TIN KHÁCH HÀNG
-    // ----------------------------------------------------
     case 'update':
         $id       = (int)($_POST['id'] ?? 0);
         $fullName = clean_input($_POST['full_name'] ?? '');
@@ -222,7 +193,6 @@ switch ($action) {
             json_response(false, 'Mã khách hàng không hợp lệ!', [], 400);
         }
 
-        // Kiểm tra khách hàng tồn tại
         $stmtOld = $pdo->prepare("SELECT id, avatar FROM customers WHERE id = ? LIMIT 1");
         $stmtOld->execute([$id]);
         $oldCustomer = $stmtOld->fetch();
@@ -230,7 +200,6 @@ switch ($action) {
             json_response(false, 'Khách hàng không tồn tại!', [], 404);
         }
 
-        // Validation
         if (empty($fullName)) {
             json_response(false, 'Họ và tên khách hàng không được để trống!', [], 422);
         }
@@ -241,20 +210,18 @@ switch ($action) {
             json_response(false, 'Số điện thoại không hợp lệ! Vui lòng nhập số điện thoại Việt Nam 10 chữ số.', [], 422);
         }
 
-        // Kiểm tra trùng email (ngoại trừ chính khách hàng này)
         $checkStmt = $pdo->prepare("SELECT id FROM customers WHERE email = ? AND id != ? LIMIT 1");
         $checkStmt->execute([$email, $id]);
         if ($checkStmt->fetch()) {
             json_response(false, 'Email này đã được dùng bởi một khách hàng khác!', [], 409);
         }
 
-        // Xử lý upload ảnh mới
         $avatarPath = $oldCustomer['avatar'];
         try {
             if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] !== UPLOAD_ERR_NO_FILE) {
                 $newAvatar = handle_avatar_upload($_FILES['avatar']);
                 if ($newAvatar) {
-                    // Xóa ảnh cũ
+
                     delete_avatar_file($oldCustomer['avatar']);
                     $avatarPath = $newAvatar;
                 }
@@ -263,7 +230,6 @@ switch ($action) {
             json_response(false, $e->getMessage(), [], 400);
         }
 
-        // Cập nhật CSDL
         $updateSql = "
             UPDATE customers
             SET group_id = ?, full_name = ?, email = ?, phone = ?, address = ?, gender = ?, birthday = ?, avatar = ?, note = ?
@@ -282,18 +248,14 @@ switch ($action) {
         }
         break;
 
-    // ----------------------------------------------------
-    // 5. XÓA MỀM KHÁCH HÀNG (CHỈ DÀNH CHO ADMIN)
-    // ----------------------------------------------------
     case 'delete':
-        require_admin_api(); // Chặn cứng ở tầng Server nếu là nhân viên
+        require_admin_api();
         $id = (int)($_POST['id'] ?? 0);
 
         if ($id <= 0) {
             json_response(false, 'Mã khách hàng không hợp lệ!', [], 400);
         }
 
-        // Thực hiện xóa mềm: Gán deleted_at = NOW()
         $stmt = $pdo->prepare("UPDATE customers SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL");
         $stmt->execute([$id]);
 
@@ -305,18 +267,14 @@ switch ($action) {
         }
         break;
 
-    // ----------------------------------------------------
-    // 6. KHÔI PHỤC TỪ THÙNG RÁC (CHỈ DÀNH CHO ADMIN)
-    // ----------------------------------------------------
     case 'restore':
-        require_admin_api(); // Chặn quyền admin
+        require_admin_api();
         $id = (int)($_POST['id'] ?? 0);
 
         if ($id <= 0) {
             json_response(false, 'Mã khách hàng không hợp lệ!', [], 400);
         }
 
-        // Gán deleted_at = NULL để khôi phục
         $stmt = $pdo->prepare("UPDATE customers SET deleted_at = NULL WHERE id = ? AND deleted_at IS NOT NULL");
         $stmt->execute([$id]);
 

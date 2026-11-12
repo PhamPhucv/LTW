@@ -1,8 +1,5 @@
 <?php
-/**
- * includes/header.php
- * Header dùng chung cho Dashboard và Quản lý khách hàng
- */
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -27,20 +24,20 @@ $activePage = $currentPage ?? 'dashboard';
     <title><?= e($pageTitle ?? 'Quản Lý Khách Hàng') ?> - CRM Mini</title>
     <script>const BASE_URL = "<?= BASE_URL ?>";</script>
 
-    <!-- Bootstrap 5.3 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <!-- Bootstrap Icons -->
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Google Fonts Inter -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
+
     <link rel="stylesheet" href="assets/css/style.css">
+
+    <link rel="stylesheet" href="assets/css/chatbot.css">
 </head>
 <body class="bg-light">
 
-<!-- Navbar chính -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm py-2">
     <div class="container-fluid px-lg-4">
         <a class="navbar-brand d-flex align-items-center fw-bold text-primary-emphasis" href="index.php">
@@ -66,7 +63,6 @@ $activePage = $currentPage ?? 'dashboard';
                 </li>
             </ul>
 
-            <!-- Thông tin người dùng đăng nhập -->
             <div class="d-flex align-items-center gap-3">
                 <div class="d-none d-md-flex flex-column text-end">
                     <span class="text-white small fw-semibold"><?= e($currentUser['full_name']) ?></span>
@@ -96,7 +92,6 @@ $activePage = $currentPage ?? 'dashboard';
     </div>
 </nav>
 
-<!-- Container thông báo Toast góc trên bên phải -->
 <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
     <div id="liveToast" class="toast align-items-center border-0 shadow-lg text-white" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">

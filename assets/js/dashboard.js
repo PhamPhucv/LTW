@@ -1,7 +1,3 @@
-/**
- * assets/js/dashboard.js
- * Quản lý logic hiển thị số liệu Dashboard, biểu đồ Chart.js và nhật ký hoạt động
- */
 
 $(document).ready(function () {
     loadDashboardData();
@@ -29,9 +25,6 @@ function loadDashboardData() {
     });
 }
 
-/**
- * Hiển thị số liệu 4 thẻ KPI
- */
 function renderKPIs(stats) {
     $('#kpiTotalActive').text(stats.total_active.toLocaleString('vi-VN'));
     $('#kpiNewThisMonth').text(stats.new_this_month.toLocaleString('vi-VN'));
@@ -39,9 +32,6 @@ function renderKPIs(stats) {
     $('#kpiTotalTrash').text(stats.total_trash.toLocaleString('vi-VN'));
 }
 
-/**
- * Khởi tạo & Vẽ biểu đồ phân bổ nhóm khách hàng bằng Chart.js
- */
 function renderChart(chartData) {
     const ctx = document.getElementById('groupChart');
     if (!ctx) return;
@@ -93,9 +83,6 @@ function renderChart(chartData) {
     });
 }
 
-/**
- * Hiển thị 10 hoạt động gần nhất vào bảng
- */
 function renderActivityLogs(logs) {
     const tbody = $('#activityLogsTableBody');
     tbody.empty();

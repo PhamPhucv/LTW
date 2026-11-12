@@ -1,8 +1,4 @@
 <?php
-/**
- * config/database.php
- * Cấu hình kết nối cơ sở dữ liệu sử dụng PDO (PHP Data Objects)
- */
 
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'customer_db');
@@ -10,12 +6,6 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_PORT', '3306');
 
-/**
- * Hằng số BASE_URL: Tự động nhận diện đường dẫn gốc của dự án trên XAMPP
- * Giúp dự án chạy trên bất kỳ máy nào mà KHÔNG bị lỗi link dù copy vào bất kỳ thư mục nào trong htdocs.
- * Ví dụ: copy vào htdocs/crm_web -> BASE_URL sẽ tự động là '/crm_web/'
- *        copy trực tiếp vào htdocs -> BASE_URL sẽ tự động là '/'
- */
 if (!defined('BASE_URL')) {
     if (php_sapi_name() === 'cli' || empty($_SERVER['SCRIPT_NAME'])) {
         define('BASE_URL', '/');
@@ -36,9 +26,9 @@ function getDBConnection() {
         foreach ($ports as $port) {
             $dsn = "mysql:host=" . DB_HOST . ";port=" . $port . ";dbname=" . DB_NAME . ";charset=utf8mb4";
             $options = [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // Ném Exception khi có lỗi SQL
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       // Trả về mảng kết hợp
-                PDO::ATTR_EMULATE_PREPARES   => false,                  // Sử dụng Prepared Statement thực tế
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES   => false,
                 PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
             ];
 
@@ -50,7 +40,6 @@ function getDBConnection() {
             }
         }
 
-        // Khi môi trường thực tế, báo lỗi nếu không cổng nào kết nối được
         http_response_code(500);
         echo json_encode([
             'success' => false,

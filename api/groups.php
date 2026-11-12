@@ -1,8 +1,4 @@
 <?php
-/**
- * api/groups.php
- * API Quản lý nhóm khách hàng (Xem danh sách, Thêm mới, Sửa, Xóa)
- */
 
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../config/database.php';
@@ -16,13 +12,11 @@ $action = $_GET['action'] ?? ($_POST['action'] ?? 'list');
 
 if (in_array($action, ['create', 'update', 'delete'])) {
     validate_csrf_api();
-    require_admin_api(); // Chỉ Admin mới có quyền thêm/sửa/xóa nhóm
+    require_admin_api();
 }
 
 switch ($action) {
-    // ----------------------------------------------------
-    // 1. LẤY TẤT CẢ NHÓM KÈM SỐ LƯỢNG KHÁCH ĐANG HOẠT ĐỘNG
-    // ----------------------------------------------------
+
     case 'list':
         $sql = "
             SELECT
@@ -39,9 +33,6 @@ switch ($action) {
         json_response(true, 'Thành công', $groups);
         break;
 
-    // ----------------------------------------------------
-    // 2. THÊM MỚI NHÓM KHÁCH HÀNG
-    // ----------------------------------------------------
     case 'create':
         $name  = clean_input($_POST['name'] ?? '');
         $color = clean_input($_POST['color'] ?? '#0d6efd');
@@ -50,7 +41,6 @@ switch ($action) {
             json_response(false, 'Tên nhóm không được để trống!', [], 422);
         }
 
-        // Kiểm tra mã màu hex hợp lệ
         if (!preg_match('/^#[a-fA-F0-9]{6}$/', $color)) {
             $color = '#0d6efd';
         }
@@ -63,9 +53,6 @@ switch ($action) {
         json_response(true, 'Thêm nhóm khách hàng thành công!', ['id' => $newId], 201);
         break;
 
-    // ----------------------------------------------------
-    // 3. CẬP NHẬT NHÓM KHÁCH HÀNG
-    // ----------------------------------------------------
     case 'update':
         $id    = (int)($_POST['id'] ?? 0);
         $name  = clean_input($_POST['name'] ?? '');
@@ -86,16 +73,12 @@ switch ($action) {
         json_response(true, 'Cập nhật nhóm khách hàng thành công!');
         break;
 
-    // ----------------------------------------------------
-    // 4. XÓA NHÓM KHÁCH HÀNG
-    // ----------------------------------------------------
     case 'delete':
         $id = (int)($_POST['id'] ?? 0);
         if ($id <= 0) {
             json_response(false, 'Mã nhóm không hợp lệ!', [], 400);
         }
 
-        // Nhờ khóa ngoại ON DELETE SET NULL, khách hàng thuộc nhóm này sẽ tự động chuyển thành NULL
         $stmt = $pdo->prepare("DELETE FROM customer_groups WHERE id = ?");
         $stmt->execute([$id]);
 

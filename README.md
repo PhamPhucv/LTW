@@ -15,32 +15,34 @@
 
 ---
 
-## 2. HƯỚNG DẪN CÀI ĐẶT & CHẠY TRÊN XAMPP (PORTABLE)
+## 2. CÁCH CHẠY DỰ ÁN (CHỈ 1 CÚ NHẤP CHUỘT)
 
-Hệ thống được thiết kế **100% Portable**, tự động nhận diện thư mục cài đặt qua hằng số `BASE_URL` và sử dụng đường dẫn tương đối. Bạn có thể copy thư mục vào bất kỳ đâu trong `htdocs` với bất kỳ tên gọi nào.
+### Cách 1: Chạy tự động bằng file `run.bat` (Khuyên dùng - Nhanh nhất)
+1. Bật **MySQL** trong XAMPP (hoặc Laragon).
+2. Nhấp đúp chuột vào file **`run.bat`** trong thư mục dự án.
+3. Script sẽ tự động:
+   - Phát hiện PHP trên máy.
+   - Tự động kiểm tra và import CSDL `database.sql` nếu chưa có (không cần vào phpMyAdmin thao tác thủ công).
+   - Khởi động máy chủ và tự động mở trình duyệt vào trang đăng nhập: `http://localhost:8000/login.php`.
 
-### Bước 1: Khởi động XAMPP
-- Mở **XAMPP Control Panel**.
-- Bấm **Start** ở cả 2 dịch vụ: **Apache** và **MySQL** (cả 2 chuyển sang màu xanh lá).
+---
 
-### Bước 2: Copy thư mục dự án vào `htdocs`
-- Copy toàn bộ thư mục dự án này vào thư mục `htdocs` của XAMPP, ví dụ:
-  `C:\xampp\htdocs\crm_web`
-  *(Tên thư mục `crm_web` có thể đổi tùy ý, code sẽ tự động bắt đường dẫn).*
+### Cách 2: Chạy truyền thống qua thư mục `htdocs` của XAMPP
 
-### Bước 3: Import Cơ sở dữ liệu duy nhất (`database.sql`)
-- Mở trình duyệt, truy cập phpMyAdmin: `http://localhost/phpmyadmin`
-- Bấm vào tab **Import** (hoặc **Nhập**).
-- Bấm **Choose File** (Chọn tệp) và trỏ tới file: `database.sql` nằm ở thư mục gốc của dự án.
-- Bấm nút **Import** ở cuối trang.
-  *(File này đã chứa sẵn lệnh tạo CSDL `customer_db`, bảng mã `utf8mb4`, cấu trúc 5 bảng chuẩn, khóa ngoại, index và 30 khách hàng mẫu kèm 3 khách trong thùng rác).*
+Hệ thống được thiết kế **100% Portable**, tự động nhận diện thư mục cài đặt qua hằng số `BASE_URL` và sử dụng đường dẫn tương đối.
 
-### Bước 4: Mở ứng dụng trên trình duyệt
-- Truy cập vào đường dẫn:
-  `http://localhost/crm_web/login.php`
-- Đăng nhập với tài khoản:
-  - Username: `admin`
-  - Password: `admin123`
+#### Bước 1: Khởi động XAMPP
+- Mở **XAMPP Control Panel**, bấm **Start** cả **Apache** và **MySQL**.
+
+#### Bước 2: Copy dự án vào `htdocs`
+- Copy thư mục vào `C:\xampp\htdocs\crm_web`.
+
+#### Bước 3: Import CSDL
+- Truy cập `http://localhost/phpmyadmin` -> bấm tab **Import** -> chọn file `database.sql` -> bấm **Import**.
+
+#### Bước 4: Mở trình duyệt
+- Truy cập `http://localhost/crm_web/login.php`.
+
 
 ---
 
@@ -76,3 +78,5 @@ Hệ thống được thiết kế **100% Portable**, tự động nhận diện
 8. **Dashboard & Biểu đồ Chart.js**: Thống kê 4 thẻ KPI và trực quan hóa phân bổ khách hàng theo từng nhóm.
 9. **Xuất file CSV cho Excel**: Chuẩn UTF-8 BOM, hỗ trợ xuất toàn bộ hoặc theo bộ lọc tìm kiếm hiện tại.
 10. **Bảo mật**: PDO Prepared Statements chống SQL Injection, băm mật khẩu BCRYPT với `password_hash()`, chống tấn công XSS bằng `htmlspecialchars()`, chống CSRF Token cho mọi request POST.
+11. **Chatbot AI & Trợ lý ảo CRM (Hybrid)**: Khung chat nổi hiện đại ở góc dưới màn hình, tích hợp AJAX tra cứu dữ liệu CSDL thời gian thực (thống kê KPI, danh sách VIP, tra cứu khách hàng theo tên/SĐT, hướng dẫn nghiệp vụ) chạy 100% offline không cần tiến trình nền; hỗ trợ tích hợp Google Gemini API qua file `config/chatbot.php`.
+

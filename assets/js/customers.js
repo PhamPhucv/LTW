@@ -1,9 +1,4 @@
-/**
- * assets/js/customers.js
- * Quản lý toàn bộ tương tác Quản lý khách hàng qua jQuery AJAX & Bootstrap Modals
- */
 
-// Trạng thái danh sách
 let state = {
     page: 1,
     limit: 10,
@@ -19,17 +14,16 @@ const isAdmin = (userRole === 'admin');
 let customerToDeleteId = null;
 
 $(document).ready(function () {
-    // 1. Khởi tạo danh sách khách hàng và danh sách nhóm
+
     loadGroups();
     loadCustomers();
     if (isAdmin) {
         updateTrashCount();
     }
 
-    // 2. Tìm kiếm Live Search có Debounce 300ms
     const debouncedSearch = debounce(function () {
         state.search = $('#searchInput').val().trim();
-        state.page = 1; // Reset về trang 1 khi tìm kiếm
+        state.page = 1;
         loadCustomers(function () {
             $('#searchSpinner').hide();
         });
@@ -40,7 +34,6 @@ $(document).ready(function () {
         debouncedSearch();
     });
 
-    // 3. Sự kiện lọc & sắp xếp
     $('#filterGroup').on('change', function () {
         state.groupId = $(this).val();
         state.page = 1;
@@ -77,7 +70,6 @@ $(document).ready(function () {
         loadCustomers();
     });
 
-    // 4. Mở Modal Thêm mới khách hàng
     $('#btnOpenAddModal').on('click', function () {
         resetCustomerForm();
         $('#customerModalTitle').html('<i class="bi bi-person-plus-fill text-primary me-2"></i>Thêm Khách Hàng Mới');
@@ -87,7 +79,6 @@ $(document).ready(function () {
         $('#customerModal').modal('show');
     });
 
-    // 5. Preview ảnh đại diện khi chọn file
     $('#avatarInput').on('change', function () {
         const file = this.files[0];
         if (file) {
@@ -104,7 +95,6 @@ $(document).ready(function () {
         }
     });
 
-    // 6. Xử lý lưu form Thêm / Sửa khách hàng (AJAX FormData)
     $('#customerForm').on('submit', function (e) {
         e.preventDefault();
 
@@ -114,20 +104,17 @@ $(document).ready(function () {
         const email = $('#email').val().trim();
         const phone = $('#phone').val().trim();
 
-        // Validate cơ bản tại client
         if (!fullName || !email || !phone) {
             showFormAlert('Vui lòng điền đầy đủ các trường bắt buộc (*)!');
             return;
         }
 
-        // Validate số điện thoại VN 10 số
         const phoneRegex = /^(0)(3[2-9]|5[2689]|7[06-9]|8[1-9]|9[0-9])[0-9]{7}$/;
         if (!phoneRegex.test(phone)) {
             showFormAlert('Số điện thoại không hợp lệ! Vui lòng nhập số điện thoại Việt Nam 10 chữ số (VD: 0912345678).');
             return;
         }
 
-        // Tạo FormData để hỗ trợ upload file
         const formData = new FormData(this);
         const btnSave = $('#btnSaveCustomer');
         const spinner = $('#saveSpinner');
@@ -141,8 +128,8 @@ $(document).ready(function () {
             type: 'POST',
             data: formData,
             dataType: 'json',
-            processData: false, // Bắt buộc khi dùng FormData
-            contentType: false, // Bắt buộc khi dùng FormData
+            processData: false,
+            contentType: false,
             success: function (res) {
                 btnSave.prop('disabled', false);
                 spinner.addClass('d-none');
@@ -151,7 +138,7 @@ $(document).ready(function () {
                     $('#customerModal').modal('hide');
                     showToast(res.message, 'success');
                     loadCustomers();
-                    loadGroups(); // Cập nhật lại số lượng khách của từng nhóm
+                    loadGroups();
                 } else {
                     showFormAlert(res.message);
                 }
@@ -168,7 +155,6 @@ $(document).ready(function () {
         });
     });
 
-    // 7. Mở Modal Xác nhận Xóa mềm (Admin)
     $(document).on('click', '.btn-delete-customer', function () {
         customerToDeleteId = $(this).data('id');
         const name = $(this).data('name');
@@ -176,7 +162,6 @@ $(document).ready(function () {
         $('#deleteConfirmModal').modal('show');
     });
 
-    // Xác nhận xóa mềm
     $('#btnConfirmDelete').on('click', function () {
         if (!customerToDeleteId) return;
 
@@ -215,12 +200,10 @@ $(document).ready(function () {
         });
     });
 
-    // 8. Mở Modal Thùng rác (Admin)
     $('#btnOpenTrash').on('click', function () {
         loadTrashList();
     });
 
-    // 9. Khôi phục khách hàng từ thùng rác
     $(document).on('click', '.btn-restore-customer', function () {
         const id = $(this).data('id');
         const row = $(this).closest('tr');
@@ -250,13 +233,11 @@ $(document).ready(function () {
         });
     });
 
-    // 10. Mở Modal Chi tiết & Lịch sử chăm sóc (care_notes)
     $(document).on('click', '.btn-view-customer', function () {
         const id = $(this).data('id');
         openCustomerDetailModal(id);
     });
 
-    // Thêm ghi chú chăm sóc mới
     $('#addCareNoteForm').on('submit', function (e) {
         e.preventDefault();
         const customerId = $('#noteCustomerId').val();
@@ -281,9 +262,9 @@ $(document).ready(function () {
                 if (res.success) {
                     $('#noteContent').val('');
                     showToast(res.message, 'success');
-                    // Thêm note vừa tạo lên đầu timeline
+
                     prependNoteToTimeline(res.data);
-                    // Cập nhật số đếm badge
+
                     const countBadge = $('#notesCountBadge');
                     const currentCount = parseInt(countBadge.text()) || 0;
                     countBadge.text(`${currentCount + 1} ghi chú`);
@@ -298,13 +279,11 @@ $(document).ready(function () {
         });
     });
 
-    // 11. Mở Modal Sửa khách hàng
     $(document).on('click', '.btn-edit-customer', function () {
         const id = $(this).data('id');
         openEditCustomerModal(id);
     });
 
-    // 12. Quản lý nhóm khách hàng (Thêm / Sửa / Xóa nhóm)
     $('#groupForm').on('submit', function (e) {
         e.preventDefault();
         const id = $('#groupIdField').val();
@@ -343,7 +322,6 @@ $(document).ready(function () {
         });
     });
 
-    // Sửa nhóm
     $(document).on('click', '.btn-edit-group', function () {
         const id = $(this).data('id');
         const name = $(this).data('name');
@@ -356,7 +334,6 @@ $(document).ready(function () {
         $('#groupNameField').focus();
     });
 
-    // Xóa nhóm
     $(document).on('click', '.btn-delete-group', function () {
         const id = $(this).data('id');
         if (!confirm('Bạn có chắc chắn muốn xóa nhóm này? Các khách hàng thuộc nhóm sẽ chuyển về trạng thái Chưa phân nhóm.')) {
@@ -386,7 +363,6 @@ $(document).ready(function () {
         });
     });
 
-    // 13. Xuất file CSV (Đính kèm query lọc hiện tại)
     $('#btnExportCSV').on('click', function () {
         const params = new URLSearchParams({
             search: state.search,
@@ -397,13 +373,6 @@ $(document).ready(function () {
     });
 });
 
-// ========================================================
-// CÁC HÀM XỬ LÝ DỮ LIỆU CHÍNH (AJAX)
-// ========================================================
-
-/**
- * Tải danh sách khách hàng từ Server (Tìm kiếm, Lọc, Phân trang)
- */
 function loadCustomers(callback) {
     const tbody = $('#customersTableBody');
 
@@ -438,9 +407,6 @@ function loadCustomers(callback) {
     });
 }
 
-/**
- * Render HTML danh sách khách hàng vào Bảng
- */
 function renderCustomersTable(customers) {
     const tbody = $('#customersTableBody');
     tbody.empty();
@@ -458,7 +424,7 @@ function renderCustomersTable(customers) {
     }
 
     customers.forEach(c => {
-        // Xử lý avatar
+
         let avatarHtml = '';
         if (c.avatar) {
             avatarHtml = `<img src="${escapeHtml(c.avatar)}" class="avatar-img" alt="${escapeHtml(c.full_name)}" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(c.full_name)}&background=e9ecef&color=495057&size=64';">`;
@@ -467,13 +433,11 @@ function renderCustomersTable(customers) {
             avatarHtml = `<div class="avatar-placeholder">${initials}</div>`;
         }
 
-        // Xử lý badge nhóm
         let groupHtml = '<span class="badge bg-secondary-subtle text-secondary border">Chưa phân nhóm</span>';
         if (c.group_name) {
             groupHtml = `<span class="badge badge-group text-white" style="background-color: ${c.group_color || '#0d6efd'};">${escapeHtml(c.group_name)}</span>`;
         }
 
-        // Nút xóa (chỉ Admin mới có)
         const deleteBtnHtml = isAdmin ? `
             <button class="btn btn-sm btn-outline-danger btn-delete-customer" data-id="${c.id}" data-name="${escapeHtml(c.full_name)}" title="Xóa mềm">
                 <i class="bi bi-trash"></i>
@@ -518,9 +482,6 @@ function renderCustomersTable(customers) {
     });
 }
 
-/**
- * Render thanh phân trang
- */
 function renderPagination(p) {
     const info = $('#paginationInfo');
     const controls = $('#paginationControls');
@@ -537,7 +498,6 @@ function renderPagination(p) {
 
     if (p.total_pages <= 1) return;
 
-    // Nút Trước (Prev)
     const prevDisabled = p.current_page === 1 ? 'disabled' : '';
     controls.append(`
         <li class="page-item ${prevDisabled}">
@@ -545,7 +505,6 @@ function renderPagination(p) {
         </li>
     `);
 
-    // Các trang số
     let startPage = Math.max(1, p.current_page - 2);
     let endPage = Math.min(p.total_pages, p.current_page + 2);
 
@@ -558,7 +517,6 @@ function renderPagination(p) {
         `);
     }
 
-    // Nút Sau (Next)
     const nextDisabled = p.current_page === p.total_pages ? 'disabled' : '';
     controls.append(`
         <li class="page-item ${nextDisabled}">
@@ -566,7 +524,6 @@ function renderPagination(p) {
         </li>
     `);
 
-    // Xử lý click chuyển trang
     controls.find('a.page-link').on('click', function (e) {
         e.preventDefault();
         const targetPage = parseInt($(this).data('page'));
@@ -577,9 +534,6 @@ function renderPagination(p) {
     });
 }
 
-/**
- * Tải danh sách nhóm khách hàng và đổ vào các Select và Bảng nhóm
- */
 function loadGroups() {
     $.ajax({
         url: 'api/groups.php',
@@ -593,13 +547,11 @@ function loadGroups() {
                 const formSelect = $('#groupId');
                 const groupTableBody = $('#groupsTableBody');
 
-                // Lưu lại lựa chọn hiện tại
                 const currentFilterVal = filterSelect.val();
                 const currentFormVal = formSelect.val();
 
-                // Đổ vào Filter dropdown
                 filterSelect.find('option:not(:first)').remove();
-                // Đổ vào Form dropdown
+
                 formSelect.find('option:not(:first)').remove();
                 groupTableBody.empty();
 
@@ -607,7 +559,6 @@ function loadGroups() {
                     filterSelect.append(`<option value="${g.id}">${escapeHtml(g.name)} (${g.total_customers})</option>`);
                     formSelect.append(`<option value="${g.id}">${escapeHtml(g.name)}</option>`);
 
-                    // Nút thao tác nhóm
                     const actionHtml = isAdmin ? `
                         <td class="text-end">
                             <button class="btn btn-sm btn-link p-0 text-primary me-2 btn-edit-group" data-id="${g.id}" data-name="${escapeHtml(g.name)}" data-color="${g.color}" title="Sửa">
@@ -636,9 +587,6 @@ function loadGroups() {
     });
 }
 
-/**
- * Cập nhật số lượng khách trong Thùng rác
- */
 function updateTrashCount() {
     $.ajax({
         url: 'api/customers.php',
@@ -654,9 +602,6 @@ function updateTrashCount() {
     });
 }
 
-/**
- * Tải danh sách trong Thùng rác và hiển thị trong Modal
- */
 function loadTrashList() {
     const tbody = $('#trashTableBody');
     tbody.html('<tr><td colspan="4" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-danger me-2"></div>Đang tải thùng rác...</td></tr>');
@@ -698,15 +643,11 @@ function loadTrashList() {
     });
 }
 
-/**
- * Mở modal Xem chi tiết & Lịch sử chăm sóc (care_notes)
- */
 function openCustomerDetailModal(id) {
     $('#detailModalTitle').html('<div class="spinner-border spinner-border-sm text-primary me-2"></div>Đang tải...');
     $('#customerDetailModal').modal('show');
     $('#noteCustomerId').val(id);
 
-    // Lấy thông tin chi tiết khách hàng
     $.ajax({
         url: 'api/customers.php',
         type: 'GET',
@@ -727,29 +668,23 @@ function openCustomerDetailModal(id) {
                 $('#detailCreatedBy').text(c.created_by_name || 'Hệ thống');
                 $('#detailCreatedAt').text(formatDateTimeVN(c.created_at));
 
-                // Avatar
                 const avatarImg = c.avatar
                     ? c.avatar
                     : `https://ui-avatars.com/api/?name=${encodeURIComponent(c.full_name)}&background=e9ecef&color=495057&size=128`;
                 $('#detailAvatar').attr('src', avatarImg);
 
-                // Group badge
                 if (c.group_name) {
                     $('#detailGroupBadge').html(`<span class="badge badge-group text-white" style="background-color: ${c.group_color || '#0d6efd'};">${escapeHtml(c.group_name)}</span>`);
                 } else {
                     $('#detailGroupBadge').html('<span class="badge bg-secondary">Chưa phân nhóm</span>');
                 }
 
-                // Tải danh sách ghi chú chăm sóc
                 loadCareNotes(id);
             }
         }
     });
 }
 
-/**
- * Tải danh sách ghi chú chăm sóc của một khách hàng
- */
 function loadCareNotes(customerId) {
     const timeline = $('#careNotesTimeline');
     timeline.html('<div class="text-center py-3 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Đang tải lịch sử...</div>');
@@ -778,12 +713,9 @@ function loadCareNotes(customerId) {
     });
 }
 
-/**
- * Thêm một ghi chú vào giao diện Timeline
- */
 function prependNoteToTimeline(note) {
     const timeline = $('#careNotesTimeline');
-    // Nếu đang có thông báo rỗng thì xóa đi
+
     if (timeline.find('p').length > 0) {
         timeline.empty();
     }
@@ -810,9 +742,6 @@ function prependNoteToTimeline(note) {
     timeline.prepend(item);
 }
 
-/**
- * Mở modal Chỉnh sửa khách hàng và nạp dữ liệu cũ vào Form
- */
 function openEditCustomerModal(id) {
     resetCustomerForm();
     $('#customerModalTitle').html('<div class="spinner-border spinner-border-sm text-primary me-2"></div>Đang tải dữ liệu...');

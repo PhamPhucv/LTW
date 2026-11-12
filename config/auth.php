@@ -1,30 +1,17 @@
 <?php
-/**
- * config/auth.php
- * Quản lý Session, Xác thực người dùng, Phân quyền và Chống tấn công CSRF
- */
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-/**
- * Kiểm tra xem người dùng đã đăng nhập chưa
- */
 function is_logged_in(): bool {
     return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 }
 
-/**
- * Kiểm tra xem người dùng hiện tại có phải Admin không
- */
 function is_admin(): bool {
     return is_logged_in() && isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 }
 
-/**
- * Lấy thông tin user hiện tại từ session
- */
 function current_user(): ?array {
     if (!is_logged_in()) {
         return null;
@@ -37,9 +24,6 @@ function current_user(): ?array {
     ];
 }
 
-/**
- * Bắt buộc phải đăng nhập (dành cho các trang view PHP)
- */
 function require_login_page(): void {
     if (!is_logged_in()) {
         $loginUrl = defined('BASE_URL') ? BASE_URL . 'login.php' : 'login.php';
@@ -48,9 +32,6 @@ function require_login_page(): void {
     }
 }
 
-/**
- * Bắt buộc phải đăng nhập (dành cho API JSON)
- */
 function require_login_api(): void {
     if (!is_logged_in()) {
         http_response_code(401);
@@ -63,9 +44,6 @@ function require_login_api(): void {
     }
 }
 
-/**
- * Bắt buộc quyền Admin (dành cho API JSON)
- */
 function require_admin_api(): void {
     require_login_api();
     if (!is_admin()) {
@@ -79,9 +57,6 @@ function require_admin_api(): void {
     }
 }
 
-/**
- * Tạo CSRF Token an toàn
- */
 function generate_csrf_token(): string {
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -89,9 +64,6 @@ function generate_csrf_token(): string {
     return $_SESSION['csrf_token'];
 }
 
-/**
- * Kiểm tra tính hợp lệ của CSRF Token
- */
 function verify_csrf_token(?string $token): bool {
     if (empty($_SESSION['csrf_token']) || empty($token)) {
         return false;
@@ -99,13 +71,10 @@ function verify_csrf_token(?string $token): bool {
     return hash_equals($_SESSION['csrf_token'], $token);
 }
 
-/**
- * Middleware kiểm tra CSRF cho các phương thức POST/PUT/DELETE trên API
- */
 function validate_csrf_api(): void {
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
-        // Nhận token từ Header 'X-CSRF-TOKEN' hoặc POST field 'csrf_token'
+
         $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? null;
         if (!verify_csrf_token($token)) {
             http_response_code(403);

@@ -1,9 +1,4 @@
-/**
- * assets/js/app.js
- * Các hàm tiện ích dùng chung cho toàn bộ Frontend
- */
 
-// Cấu hình jQuery AJAX tự động đính kèm CSRF Token vào Header cho mọi request
 $(document).ready(function () {
     const csrfToken = $('meta[name="csrf-token"]').attr('content');
     if (csrfToken) {
@@ -15,11 +10,6 @@ $(document).ready(function () {
     }
 });
 
-/**
- * Hiển thị thông báo Toast Bootstrap
- * @param {string} message - Nội dung thông báo
- * @param {string} type - 'success' | 'danger' | 'warning' | 'info'
- */
 function showToast(message, type = 'success') {
     const toastEl = document.getElementById('liveToast');
     const toastMessage = document.getElementById('toastMessage');
@@ -27,7 +17,6 @@ function showToast(message, type = 'success') {
 
     if (!toastEl) return;
 
-    // Reset các class màu nền
     toastEl.className = 'toast align-items-center border-0 shadow-lg text-white';
     toastIcon.className = 'bi me-2 fs-5';
 
@@ -57,12 +46,6 @@ function showToast(message, type = 'success') {
     toast.show();
 }
 
-/**
- * Hàm Debounce: Trì hoãn việc gọi hàm cho đến khi người dùng ngừng gõ
- * Rất quan trọng cho tính năng Live Search
- * @param {Function} func - Hàm cần thực thi
- * @param {number} wait - Thời gian chờ (mili-giây)
- */
 function debounce(func, wait = 300) {
     let timeout;
     return function (...args) {
@@ -71,9 +54,6 @@ function debounce(func, wait = 300) {
     };
 }
 
-/**
- * Escape chuỗi chống XSS trên client-side Javascript
- */
 function escapeHtml(text) {
     if (!text && text !== 0) return '';
     return String(text)
@@ -84,9 +64,6 @@ function escapeHtml(text) {
         .replace(/'/g, "&#039;");
 }
 
-/**
- * Định dạng ngày d/m/Y cho JS
- */
 function formatDateVN(dateStr) {
     if (!dateStr) return '-';
     const parts = dateStr.split('-');
@@ -101,9 +78,6 @@ function formatDateVN(dateStr) {
     return `${day}/${month}/${year}`;
 }
 
-/**
- * Định dạng ngày giờ d/m/Y H:i:s
- */
 function formatDateTimeVN(dateTimeStr) {
     if (!dateTimeStr) return '-';
     const d = new Date(dateTimeStr.replace(' ', 'T'));

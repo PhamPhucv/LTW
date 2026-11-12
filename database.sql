@@ -1,8 +1,3 @@
--- ========================================================
--- DỰ ÁN CUỐI KỲ: HỆ THỐNG QUẢN LÝ KHÁCH HÀNG (CRM MINI)
--- CÔNG NGHỆ: PHP Thuần (PDO) + MySQL + Bootstrap 5 + AJAX
--- RÀNG BUỘC: CHỈ ĐÚNG 5 BẢNG (CHUẨN HÓA, KHÓA NGOẠI, INDEX)
--- ========================================================
 
 CREATE DATABASE IF NOT EXISTS `customer_db`
 CHARACTER SET utf8mb4
@@ -10,7 +5,6 @@ COLLATE utf8mb4_unicode_ci;
 
 USE `customer_db`;
 
--- Tắt kiểm tra khóa ngoại tạm thời để xóa/tạo bảng sạch sẽ
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS `activity_logs`;
@@ -21,9 +15,6 @@ DROP TABLE IF EXISTS `users`;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
--- --------------------------------------------------------
--- 1. BẢNG: users (Tài khoản người dùng hệ thống)
--- --------------------------------------------------------
 CREATE TABLE `users` (
     `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `username` VARCHAR(50) NOT NULL UNIQUE,
@@ -34,18 +25,12 @@ CREATE TABLE `users` (
     INDEX `idx_users_role` (`role`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
--- 2. BẢNG: customer_groups (Nhóm phân loại khách hàng)
--- --------------------------------------------------------
 CREATE TABLE `customer_groups` (
     `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(100) NOT NULL,
     `color` VARCHAR(20) NOT NULL DEFAULT '#0d6efd'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
--- 3. BẢNG: customers (Thông tin khách hàng)
--- --------------------------------------------------------
 CREATE TABLE `customers` (
     `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `group_id` INT UNSIGNED NULL,
@@ -61,7 +46,6 @@ CREATE TABLE `customers` (
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `deleted_at` DATETIME NULL DEFAULT NULL,
 
-    -- Khóa ngoại
     CONSTRAINT `fk_customers_group`
         FOREIGN KEY (`group_id`) REFERENCES `customer_groups`(`id`)
         ON DELETE SET NULL ON UPDATE CASCADE,
@@ -69,16 +53,12 @@ CREATE TABLE `customers` (
         FOREIGN KEY (`created_by`) REFERENCES `users`(`id`)
         ON DELETE SET NULL ON UPDATE CASCADE,
 
-    -- Đánh index để tăng tốc độ tìm kiếm và lọc
     INDEX `idx_customers_deleted_at` (`deleted_at`),
     INDEX `idx_customers_group_id` (`group_id`),
     INDEX `idx_customers_phone` (`phone`),
     INDEX `idx_customers_search` (`full_name`, `email`, `phone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
--- 4. BẢNG: care_notes (Lịch sử ghi chú chăm sóc khách hàng)
--- --------------------------------------------------------
 CREATE TABLE `care_notes` (
     `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `customer_id` INT UNSIGNED NOT NULL,
@@ -86,7 +66,6 @@ CREATE TABLE `care_notes` (
     `content` TEXT NOT NULL,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    -- Khóa ngoại
     CONSTRAINT `fk_notes_customer`
         FOREIGN KEY (`customer_id`) REFERENCES `customers`(`id`)
         ON DELETE CASCADE ON UPDATE CASCADE,
@@ -94,49 +73,34 @@ CREATE TABLE `care_notes` (
         FOREIGN KEY (`user_id`) REFERENCES `users`(`id`)
         ON DELETE CASCADE ON UPDATE CASCADE,
 
-    -- Index tối ưu truy vấn lịch sử theo khách hàng
     INDEX `idx_notes_customer_time` (`customer_id`, `created_at` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
--- 5. BẢNG: activity_logs (Nhật ký thao tác hệ thống)
--- --------------------------------------------------------
 CREATE TABLE `activity_logs` (
     `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` INT UNSIGNED NULL,
-    `action` VARCHAR(50) NOT NULL, -- 'CREATE', 'UPDATE', 'DELETE', 'RESTORE', 'LOGIN'
-    `target_table` VARCHAR(50) NOT NULL, -- 'customers', 'customer_groups', 'care_notes', 'auth'
+    `action` VARCHAR(50) NOT NULL,
+    `target_table` VARCHAR(50) NOT NULL,
     `target_id` INT UNSIGNED NULL,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    -- Khóa ngoại
     CONSTRAINT `fk_logs_user`
         FOREIGN KEY (`user_id`) REFERENCES `users`(`id`)
         ON DELETE SET NULL ON UPDATE CASCADE,
 
-    -- Index tối ưu lấy 10 log mới nhất cho Dashboard
     INDEX `idx_logs_latest` (`created_at` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
--- ========================================================
--- DỮ LIỆU MẪU (SEED DATA)
--- ========================================================
-
--- 1. Thêm users (Mật khẩu admin: admin123, nhân viên: staff123)
--- Đã băm sẵn bằng password_hash() thuật toán BCRYPT
 INSERT INTO `users` (`id`, `username`, `password`, `full_name`, `role`, `created_at`) VALUES
 (1, 'admin', '$2y$10$A57LxUJ20NtbNISbGrb64u2o8mhC/nqHaN0uAzUdsKW9t9zOIvEXa', 'Quản Trị Viên (Admin)', 'admin', '2024-01-01 08:00:00'),
 (2, 'staff_nam', '$2y$10$OmujSyEJovRaTE59CoA79uugraQJQwr8SvOOkVffJcAkJ3PYQpfo.', 'Nguyễn Văn Nam (Staff)', 'staff', '2024-01-05 09:30:00'),
 (3, 'staff_hoa', '$2y$10$OmujSyEJovRaTE59CoA79uugraQJQwr8SvOOkVffJcAkJ3PYQpfo.', 'Trần Thị Hoa (Staff)', 'staff', '2024-01-10 10:15:00');
 
--- 2. Thêm 3 nhóm khách hàng
 INSERT INTO `customer_groups` (`id`, `name`, `color`) VALUES
-(1, 'Khách hàng VIP', '#dc3545'),        -- Màu đỏ Bootstrap
-(2, 'Khách hàng Tiềm năng', '#0d6efd'),  -- Màu xanh dương Bootstrap
-(3, 'Khách hàng Thân thiết', '#198754'); -- Màu xanh lá Bootstrap
+(1, 'Khách hàng VIP', '#dc3545'),
+(2, 'Khách hàng Tiềm năng', '#0d6efd'),
+(3, 'Khách hàng Thân thiết', '#198754');
 
--- 3. Thêm 30 khách hàng mẫu (27 khách đang hoạt động, 3 khách nằm trong Thùng rác để test khôi phục)
 INSERT INTO `customers` (`id`, `group_id`, `full_name`, `email`, `phone`, `address`, `gender`, `birthday`, `avatar`, `note`, `created_by`, `created_at`, `deleted_at`) VALUES
 (1, 1, 'Nguyễn An Khang', 'ankhang@gmail.com', '0912345671', '124 Phố Huế, Q. Hai Bà Trưng, Hà Nội', 'Nam', '1988-04-12', NULL, 'Khách hàng đầu tư lớn, ưu tiên hỗ trợ 24/7', 1, '2024-01-15 08:30:00', NULL),
 (2, 1, 'Trần Bảo Ngọc', 'baongoc@gmail.com', '0988223344', '45 Lê Duẩn, P. Bến Nghé, Quận 1, TP.HCM', 'Nữ', '1992-09-20', NULL, 'Quan tâm gói dịch vụ cao cấp hàng năm', 2, '2024-01-16 09:00:00', NULL),
@@ -166,12 +130,10 @@ INSERT INTO `customers` (`id`, `group_id`, `full_name`, `email`, `phone`, `addre
 (26, 2, 'Đinh Thị Thu', 'thuthu.dinh@gmail.com', '0941558833', '90 Trần Phú, TP. Thanh Hóa', 'Nữ', '1994-11-28', NULL, 'Yêu cầu tư vấn viên gọi điện trước 11h sáng', 3, '2024-03-20 14:40:00', NULL),
 (27, 3, 'Võ Quốc Toàn', 'quoctoan.vo@gmail.com', '0928441155', '64 Lê Duẩn, TP. Pleiku, Gia Lai', 'Nam', '1989-12-16', NULL, 'Khách hàng kỳ cựu', 1, '2024-03-22 11:00:00', NULL),
 
--- 3 Khách hàng nằm trong THÙNG RÁC (deleted_at có giá trị) để demo tính năng khôi phục
 (28, 2, 'Trương Văn Bách', 'vanbach.truong@test.com', '0905123456', 'Số 5 Đinh Tiên Hoàng, Q. 1, TP.HCM', 'Nam', '1993-02-02', NULL, 'Khách tạm ngưng hoạt động do chuyển văn phòng', 2, '2024-01-10 09:00:00', '2024-03-25 10:15:00'),
 (29, 3, 'Nguyễn Lệ Hằng', 'lehang.nguyen@test.com', '0981654321', '88 Lê Trọng Tấn, Q. Tân Phú, TP.HCM', 'Nữ', '1996-07-17', NULL, 'Trùng số điện thoại khi nhập liệu (nhập nhầm)', 3, '2024-02-12 11:30:00', '2024-03-26 14:20:00'),
 (30, 1, 'Phạm Anh Khoa', 'anhkhoa.pham@test.com', '0938789012', '12 Hàng Bạc, Q. Hoàn Kiếm, Hà Nội', 'Nam', '1985-05-05', NULL, 'Đã chuyển đổi sang mô hình công ty liên kết', 1, '2024-02-28 16:00:00', '2024-03-27 09:50:00');
 
--- 4. Thêm dữ liệu lịch sử chăm sóc (care_notes)
 INSERT INTO `care_notes` (`customer_id`, `user_id`, `content`, `created_at`) VALUES
 (1, 1, 'Đã gặp mặt trực tiếp tại văn phòng. Khách hàng đồng ý gia hạn gói dịch vụ năm 2024.', '2024-01-20 14:00:00'),
 (1, 2, 'Gọi điện chúc mừng sinh nhật khách hàng và gửi voucher tri ân giảm 15%.', '2024-04-12 09:30:00'),
@@ -186,7 +148,6 @@ INSERT INTO `care_notes` (`customer_id`, `user_id`, `content`, `created_at`) VAL
 (15, 1, 'Khách hàng quan tâm mô hình tưới tiêu tự động liên kết phần mềm quản lý.', '2024-02-25 15:45:00'),
 (18, 1, 'Gửi tin nhắn SMS mã ưu đãi ngày 8/3, khách đã phản hồi cảm ơn.', '2024-03-08 08:30:00');
 
--- 5. Thêm dữ liệu nhật ký thao tác gần đây (activity_logs)
 INSERT INTO `activity_logs` (`user_id`, `action`, `target_table`, `target_id`, `created_at`) VALUES
 (1, 'LOGIN', 'auth', 1, '2024-03-25 08:00:00'),
 (1, 'CREATE', 'customer_groups', 1, '2024-03-25 08:15:00'),

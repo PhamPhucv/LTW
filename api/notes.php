@@ -1,8 +1,4 @@
 <?php
-/**
- * api/notes.php
- * API Lịch sử chăm sóc khách hàng (care_notes)
- */
 
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../config/database.php';
@@ -15,9 +11,7 @@ $currentUserId = $_SESSION['user_id'];
 $action = $_GET['action'] ?? ($_POST['action'] ?? 'list');
 
 switch ($action) {
-    // ----------------------------------------------------
-    // 1. LẤY DANH SÁCH GHI CHÚ THEO KHÁCH HÀNG
-    // ----------------------------------------------------
+
     case 'list':
         $customerId = (int)($_GET['customer_id'] ?? 0);
         if ($customerId <= 0) {
@@ -39,9 +33,6 @@ switch ($action) {
         json_response(true, 'Thành công', $notes);
         break;
 
-    // ----------------------------------------------------
-    // 2. THÊM GHI CHÚ CHĂM SÓC MỚI
-    // ----------------------------------------------------
     case 'create':
         validate_csrf_api();
 
@@ -55,7 +46,6 @@ switch ($action) {
             json_response(false, 'Nội dung ghi chú chăm sóc không được để trống!', [], 422);
         }
 
-        // Kiểm tra khách hàng có tồn tại không
         $checkStmt = $pdo->prepare("SELECT id FROM customers WHERE id = ? LIMIT 1");
         $checkStmt->execute([$customerId]);
         if (!$checkStmt->fetch()) {
@@ -69,10 +59,8 @@ switch ($action) {
         $stmt->execute([$customerId, $currentUserId, $content]);
         $newNoteId = (int)$pdo->lastInsertId();
 
-        // Ghi log hoạt động
         log_activity($pdo, $currentUserId, 'CREATE', 'care_notes', $customerId);
 
-        // Lấy lại thông tin note vừa tạo kèm tên staff để trả về client append vào timeline
         $getStmt = $pdo->prepare("
             SELECT
                 n.id, n.customer_id, n.user_id, n.content, n.created_at,

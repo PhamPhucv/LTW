@@ -1,10 +1,4 @@
 <?php
-/**
- * customers.php
- * Màn hình Quản lý khách hàng (Màn hình 3)
- * Tích hợp toàn bộ CRUD, Tìm kiếm Debounce, Lọc, Phân trang, Upload avatar,
- * Quản lý nhóm, Lịch sử chăm sóc và Thùng rác khôi phục qua AJAX Modals.
- */
 
 $currentPage = 'customers';
 $pageTitle = 'Quản Lý Khách Hàng';
@@ -18,24 +12,22 @@ $isAdmin = ($currentUser['role'] === 'admin');
 
 <main class="py-4">
     <div class="container-fluid px-lg-4">
-        <!-- Thanh tiêu đề & Các nút chức năng chính -->
+
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
             <div>
                 <h3 class="fw-bold mb-1">Danh Sách Khách Hàng</h3>
                 <p class="text-muted mb-0 small">Quản lý thông tin, phân loại và theo dõi lịch sử chăm sóc</p>
             </div>
             <div class="d-flex flex-wrap gap-2">
-                <!-- Nút Xuất CSV -->
+
                 <button type="button" id="btnExportCSV" class="btn btn-outline-success d-inline-flex align-items-center shadow-sm">
                     <i class="bi bi-file-earmark-spreadsheet me-2"></i> Xuất CSV
                 </button>
 
-                <!-- Nút Quản lý nhóm -->
                 <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#groupModal">
                     <i class="bi bi-tags-fill me-2"></i> Quản lý nhóm
                 </button>
 
-                <!-- Nút Thùng rác (Chỉ Admin mới nhìn thấy) -->
                 <?php if ($isAdmin): ?>
                 <button type="button" class="btn btn-outline-danger d-inline-flex align-items-center shadow-sm position-relative" data-bs-toggle="modal" data-bs-target="#trashModal" id="btnOpenTrash">
                     <i class="bi bi-trash3 me-1"></i> Thùng rác
@@ -43,18 +35,16 @@ $isAdmin = ($currentUser['role'] === 'admin');
                 </button>
                 <?php endif; ?>
 
-                <!-- Nút Thêm mới khách hàng -->
                 <button type="button" class="btn btn-primary d-inline-flex align-items-center shadow-sm" id="btnOpenAddModal">
                     <i class="bi bi-plus-lg me-2"></i> Thêm khách hàng
                 </button>
             </div>
         </div>
 
-        <!-- Bộ lọc & Tìm kiếm Live Search -->
         <div class="card border-0 shadow-sm rounded-3 mb-4">
             <div class="card-body p-3">
                 <div class="row g-2 align-items-center">
-                    <!-- Ô tìm kiếm Live có Debounce -->
+
                     <div class="col-12 col-md-4">
                         <div class="position-relative">
                             <span class="position-absolute top-50 start-0 translate-middle-y ps-3 text-muted">
@@ -65,15 +55,13 @@ $isAdmin = ($currentUser['role'] === 'admin');
                         </div>
                     </div>
 
-                    <!-- Lọc theo nhóm khách hàng -->
                     <div class="col-6 col-md-3">
                         <select id="filterGroup" class="form-select">
                             <option value="">-- Tất cả các nhóm --</option>
-                            <!-- Tự động đổ danh sách nhóm bằng JS -->
+
                         </select>
                     </div>
 
-                    <!-- Lọc theo giới tính -->
                     <div class="col-6 col-md-2">
                         <select id="filterGender" class="form-select">
                             <option value="">-- Giới tính --</option>
@@ -83,7 +71,6 @@ $isAdmin = ($currentUser['role'] === 'admin');
                         </select>
                     </div>
 
-                    <!-- Sắp xếp -->
                     <div class="col-8 col-md-2">
                         <select id="sortBy" class="form-select">
                             <option value="id-desc">Mới nhất</option>
@@ -94,7 +81,6 @@ $isAdmin = ($currentUser['role'] === 'admin');
                         </select>
                     </div>
 
-                    <!-- Nút reset bộ lọc -->
                     <div class="col-4 col-md-1 text-end">
                         <button type="button" id="btnResetFilter" class="btn btn-light border w-100" title="Đặt lại bộ lọc">
                             <i class="bi bi-arrow-counterclockwise"></i>
@@ -104,7 +90,6 @@ $isAdmin = ($currentUser['role'] === 'admin');
             </div>
         </div>
 
-        <!-- Bảng danh sách khách hàng -->
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -132,14 +117,13 @@ $isAdmin = ($currentUser['role'] === 'admin');
                 </div>
             </div>
 
-            <!-- Phân trang & Thông tin hiển thị -->
             <div class="card-footer bg-white border-top py-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
                 <div class="small text-muted" id="paginationInfo">
                     Đang tải thông tin bản ghi...
                 </div>
                 <nav aria-label="Pagination">
                     <ul class="pagination pagination-sm mb-0" id="paginationControls">
-                        <!-- JS render phân trang -->
+
                     </ul>
                 </nav>
             </div>
@@ -147,9 +131,6 @@ $isAdmin = ($currentUser['role'] === 'admin');
     </div>
 </main>
 
-<!-- ========================================================= -->
-<!-- MODAL 1: THÊM MỚI / CHỈNH SỬA KHÁCH HÀNG -->
-<!-- ========================================================= -->
 <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -165,11 +146,10 @@ $isAdmin = ($currentUser['role'] === 'admin');
                     <input type="hidden" id="customerId" name="id" value="">
                     <input type="hidden" id="formAction" name="action" value="create">
 
-                    <!-- Alert thông báo lỗi form -->
                     <div id="formAlert" class="alert alert-danger d-none py-2 small mb-3"></div>
 
                     <div class="row g-3">
-                        <!-- Cột Avatar Preview & Upload -->
+
                         <div class="col-12 col-md-4 text-center border-end-md pb-3 pb-md-0">
                             <label class="form-label small fw-semibold d-block">Ảnh đại diện</label>
                             <div class="position-relative d-inline-block mb-3">
@@ -181,7 +161,6 @@ $isAdmin = ($currentUser['role'] === 'admin');
                             </div>
                         </div>
 
-                        <!-- Cột Thông tin cá nhân -->
                         <div class="col-12 col-md-8">
                             <div class="row g-3">
                                 <div class="col-12">
@@ -246,9 +225,6 @@ $isAdmin = ($currentUser['role'] === 'admin');
     </div>
 </div>
 
-<!-- ========================================================= -->
-<!-- MODAL 2: CHI TIẾT KHÁCH HÀNG & LỊCH SỬ CHĂM SÓC (CARE_NOTES) -->
-<!-- ========================================================= -->
 <div class="modal fade" id="customerDetailModal" tabindex="-1" aria-labelledby="detailModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -261,7 +237,7 @@ $isAdmin = ($currentUser['role'] === 'admin');
 
             <div class="modal-body p-4">
                 <div class="row g-4">
-                    <!-- Cột trái: Thông tin tổng quan khách hàng -->
+
                     <div class="col-12 col-lg-5 border-end-lg">
                         <div class="text-center pb-3 border-bottom">
                             <img id="detailAvatar" src="" class="avatar-preview-box mb-2" alt="Avatar">
@@ -289,7 +265,6 @@ $isAdmin = ($currentUser['role'] === 'admin');
                         </div>
                     </div>
 
-                    <!-- Cột phải: Timeline Lịch sử chăm sóc (care_notes) -->
                     <div class="col-12 col-lg-7">
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <h6 class="fw-bold text-dark mb-0">
@@ -298,7 +273,6 @@ $isAdmin = ($currentUser['role'] === 'admin');
                             <span class="badge bg-secondary-subtle text-secondary" id="notesCountBadge">0 ghi chú</span>
                         </div>
 
-                        <!-- Form thêm nhanh ghi chú mới -->
                         <div class="card border bg-light-subtle mb-4">
                             <div class="card-body p-3">
                                 <form id="addCareNoteForm">
@@ -316,9 +290,8 @@ $isAdmin = ($currentUser['role'] === 'admin');
                             </div>
                         </div>
 
-                        <!-- Danh sách Timeline -->
                         <div id="careNotesTimeline" class="timeline" style="max-height: 400px; overflow-y: auto;">
-                            <!-- Đổ dữ liệu ghi chú qua JS -->
+
                         </div>
                     </div>
                 </div>
@@ -331,9 +304,6 @@ $isAdmin = ($currentUser['role'] === 'admin');
     </div>
 </div>
 
-<!-- ========================================================= -->
-<!-- MODAL 3: QUẢN LÝ NHÓM KHÁCH HÀNG (CUSTOMER_GROUPS) -->
-<!-- ========================================================= -->
 <div class="modal fade" id="groupModal" tabindex="-1" aria-labelledby="groupModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -345,7 +315,7 @@ $isAdmin = ($currentUser['role'] === 'admin');
             </div>
 
             <div class="modal-body p-4">
-                <!-- Form thêm / sửa nhóm (Chỉ Admin) -->
+
                 <?php if ($isAdmin): ?>
                 <form id="groupForm" class="mb-4 p-3 bg-light rounded-3 border">
                     <input type="hidden" id="groupIdField" value="">
@@ -370,7 +340,6 @@ $isAdmin = ($currentUser['role'] === 'admin');
                 </div>
                 <?php endif; ?>
 
-                <!-- Bảng danh sách các nhóm -->
                 <div class="table-responsive">
                     <table class="table table-sm table-hover align-middle mb-0">
                         <thead class="table-light">
@@ -384,7 +353,7 @@ $isAdmin = ($currentUser['role'] === 'admin');
                             </tr>
                         </thead>
                         <tbody id="groupsTableBody">
-                            <!-- Đổ danh sách nhóm qua JS -->
+
                         </tbody>
                     </table>
                 </div>
@@ -397,9 +366,6 @@ $isAdmin = ($currentUser['role'] === 'admin');
     </div>
 </div>
 
-<!-- ========================================================= -->
-<!-- MODAL 4: THÙNG RÁC & KHÔI PHỤC (CHỈ ADMIN) -->
-<!-- ========================================================= -->
 <?php if ($isAdmin): ?>
 <div class="modal fade" id="trashModal" tabindex="-1" aria-labelledby="trashModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -427,7 +393,7 @@ $isAdmin = ($currentUser['role'] === 'admin');
                             </tr>
                         </thead>
                         <tbody id="trashTableBody">
-                            <!-- Đổ danh sách thùng rác qua JS -->
+
                         </tbody>
                     </table>
                 </div>
@@ -441,9 +407,6 @@ $isAdmin = ($currentUser['role'] === 'admin');
 </div>
 <?php endif; ?>
 
-<!-- ========================================================= -->
-<!-- MODAL 5: XÁC NHẬN XÓA MỀM (CHỈ ADMIN) -->
-<!-- ========================================================= -->
 <?php if ($isAdmin): ?>
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">

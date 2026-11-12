@@ -1,8 +1,4 @@
 <?php
-/**
- * index.php
- * Màn hình Dashboard (Màn hình 2)
- */
 
 $currentPage = 'dashboard';
 $pageTitle = 'Dashboard Tổng Quan';
@@ -16,7 +12,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <main class="py-4">
     <div class="container-fluid px-lg-4">
-        <!-- Tiêu đề trang & Lời chào -->
+
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
             <div>
                 <h3 class="fw-bold mb-1">Dashboard Tổng Quan</h3>
@@ -31,9 +27,8 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
 
-        <!-- 4 Card KPI Thống kê -->
         <div class="row g-3 mb-4">
-            <!-- 1. Tổng khách hàng -->
+
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="card card-kpi bg-white h-100 p-3">
                     <div class="d-flex align-items-center justify-content-between">
@@ -51,7 +46,6 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             </div>
 
-            <!-- 2. Khách mới trong tháng -->
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="card card-kpi bg-white h-100 p-3">
                     <div class="d-flex align-items-center justify-content-between">
@@ -69,7 +63,6 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             </div>
 
-            <!-- 3. Số nhóm khách hàng -->
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="card card-kpi bg-white h-100 p-3">
                     <div class="d-flex align-items-center justify-content-between">
@@ -87,7 +80,6 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             </div>
 
-            <!-- 4. Thùng rác (Xóa mềm) -->
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="card card-kpi bg-white h-100 p-3">
                     <div class="d-flex align-items-center justify-content-between">
@@ -106,9 +98,8 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
 
-        <!-- Biểu đồ & Lịch sử hoạt động -->
         <div class="row g-4">
-            <!-- Biểu đồ phân bổ nhóm khách hàng (Chart.js) -->
+
             <div class="col-12 col-lg-5">
                 <div class="card border-0 shadow-sm rounded-3 h-100">
                     <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
@@ -126,7 +117,6 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             </div>
 
-            <!-- 10 Hoạt động gần nhất (Activity Logs) -->
             <div class="col-12 col-lg-7">
                 <div class="card border-0 shadow-sm rounded-3 h-100">
                     <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">

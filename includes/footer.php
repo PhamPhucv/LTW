@@ -1,8 +1,5 @@
 <?php
-/**
- * includes/footer.php
- * Footer dùng chung cho các màn hình trong hệ thống
- */
+
 ?>
 <footer class="footer mt-auto py-3 bg-white border-top text-muted">
     <div class="container-fluid px-lg-4 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 small">
@@ -18,12 +15,15 @@
     </div>
 </footer>
 
-<!-- jQuery 3.7.1 CDN -->
+<?php require_once __DIR__ . '/chatbot.php'; ?>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<!-- Bootstrap 5.3.3 Bundle JS -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Core Common App JS -->
+
 <script src="assets/js/app.js"></script>
+
+<script src="assets/js/chatbot.js"></script>
 
 <?php if (isset($extraScripts) && is_array($extraScripts)): ?>
     <?php foreach ($extraScripts as $script): ?>
