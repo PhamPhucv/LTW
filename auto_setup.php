@@ -16,12 +16,12 @@ foreach ($ports as $port) {
 }
 
 if (!$pdo) {
-    echo "[!] Khong the ket noi den MySQL tren cong 3306/3307.\n";
-    echo "    Vui long bat XAMPP Control Panel va nhan Start o muc MySQL!\n";
+    echo "\n[!] KHONG THE KET NOI DEN MYSQL!\n";
+    echo "    Vui long mo XAMPP Control Panel va nhan [Start] o muc MySQL truoc.\n";
     exit(1);
 }
 
-echo "[OK] Ket noi thanh cong MySQL tren cong {$connectedPort}.\n";
+echo "[OK] Ket noi MySQL thanh cong tren cong {$connectedPort}.\n";
 
 try {
     $stmt = $pdo->query("SHOW DATABASES LIKE 'customer_db'");
@@ -39,19 +39,36 @@ try {
     }
 
     if ($needImport) {
-        echo "[i] Dang tu dong import co so du lieu database.sql vao MySQL...\n";
+        echo "[i] Dang tu dong import co so du lieu database.sql...\n";
         $sqlFile = __DIR__ . '/database.sql';
         if (file_exists($sqlFile)) {
             $sql = file_get_contents($sqlFile);
             $pdo->exec($sql);
-            echo "[OK] Import co so du lieu thanh cong!\n";
+            echo "[OK] Import co so du lieu database.sql thanh cong!\n";
         } else {
-            echo "[!] Khong tim thay file database.sql.\n";
+            echo "[!] Khong tim thay file database.sql de import.\n";
         }
     } else {
-        echo "[OK] Co so du lieu customer_db da ton tai va san sang su dung.\n";
+        echo "[OK] Co so du lieu customer_db da san sang su dung.\n";
     }
 } catch (Exception $e) {
-    echo "[!] Loi thiet lap CSDL: " . $e->getMessage() . "\n";
+    echo "[!] Canh bao CSDL: " . $e->getMessage() . "\n";
 }
+
+$candidates = [8000, 8080, 8888, 8008, 8081];
+$chosenPort = 8000;
+foreach ($candidates as $candidate) {
+    $fp = @fsockopen('127.0.0.1', $candidate, $errno, $errstr, 0.5);
+    if (!$fp) {
+        $chosenPort = $candidate;
+        break;
+    }
+    fclose($fp);
+}
+
+file_put_contents(__DIR__ . '/.port', $chosenPort);
+if ($chosenPort !== 8000) {
+    echo "[i] Cong 8000 da co ung dung khac su dung. He thong tu dong chuyen sang cong {$chosenPort}.\n";
+}
+
 exit(0);

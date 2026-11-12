@@ -17,6 +17,7 @@ ehthumbs.db
 # File logs
 *.log
 error_log
+.port
 
 # File upload của người dùng (chỉ giữ lại thư mục rỗng qua .gitkeep)
 uploads/avatars/*
