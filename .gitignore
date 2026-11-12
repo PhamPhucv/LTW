@@ -1,0 +1,23 @@
+# Hệ điều hành / OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+ehthumbs.db
+
+# Trình soạn thảo / IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Cấu hình công cụ AI / Claude CLI
+.claude/
+.claude.json
+
+# File logs
+*.log
+error_log
+
+# File upload của người dùng (chỉ giữ lại thư mục rỗng qua .gitkeep)
+uploads/avatars/*
+!uploads/avatars/.gitkeep
